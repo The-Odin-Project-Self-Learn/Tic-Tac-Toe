@@ -44,19 +44,12 @@ const gameBoard = (() => {
 
     //update cell with a particular marker at the given index
     const updateCell = (index, marker) => {
-        //check if cell is empty before updating
-        if (isValid(index)) {
-            if (isEmpty(index)) {
-                board[index] = marker;
-            } else {
-                return 'cell is full';
-            }
-        } else {
-            return 'invalid index';
+        if (isValid(index) & isEmpty(index)) {
+            board[index] = marker;
         }
     }
 
-    return {getBoard, resetBoard, checkCell, updateCell};
+    return {getBoard, isValid, resetBoard, checkCell, updateCell};
 })();
 
 
@@ -65,9 +58,6 @@ const gameBoard = (() => {
 Factory function for gameController object, wrapped inside of an IIFE
 */
 const gameController = ((p1Name, p2Name) => {
-    //obtain current state of the board
-    const board = gameBoard.getBoard();
-
     //create two players based on names passed in to controller
     const players = [
         {name: p1Name, marker: 'X'}, 
@@ -84,7 +74,35 @@ const gameController = ((p1Name, p2Name) => {
         }
     }
 
+    //fetch the current player
     const getCurrentPlayer = () => currentPlayer;
 
-    
+    //check conditions of game
+    const evaluateMove = (board, index) => {
+        //check for win
+
+
+
+        //check for tie
+    }
+
+    //a round begins when a player leaves a marker at a particular position on the board
+    const playRound = (index) => {
+        //fetch current player
+        const currentPlayer = getCurrentPlayer();
+
+        //indicate start of round
+        console.log(`${currentPlayer}'s turn`);
+
+        //place marker and check current state of the board
+        gameBoard.updateCell(index, currentPlayer.marker)
+        const board = gameBoard.getBoard();
+        
+        //check win conditions
+        if (evaluateMove(gameBoard.getBoard(), index) === 'win') {
+            console.log(`${getCurrentPlayer().name} wins!`);
+        }
+
+        
+    }
 })();
