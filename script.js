@@ -1,3 +1,7 @@
+/*
+Factory function for gameBoard object, wrapped inside of an IIFE so that only one gameBoard can be
+created at a time
+*/
 const gameBoard = (() => {
     const board = []; 
     const cells = 9;
@@ -57,3 +61,30 @@ const gameBoard = (() => {
 
 
 
+/*
+Factory function for gameController object, wrapped inside of an IIFE
+*/
+const gameController = ((p1Name, p2Name) => {
+    //obtain current state of the board
+    const board = gameBoard.getBoard();
+
+    //create two players based on names passed in to controller
+    const players = [
+        {name: p1Name, marker: 'X'}, 
+        {name: p2Name, marker: 'O'}
+    ];
+
+    //player turn-switching logic
+    let currentPlayer = players[0];
+    const switchPlayerTurn = () => {
+        if (currentPlayer === players[0]) {
+            currentPlayer = players[1];
+        } else {
+            currentPlayer = players[0];
+        }
+    }
+
+    const getCurrentPlayer = () => currentPlayer;
+
+    
+})();
