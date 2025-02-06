@@ -77,16 +77,25 @@ const gameController = ((p1Name, p2Name) => {
     //fetch the current player
     const getCurrentPlayer = () => currentPlayer;
 
+    //check if board is full
+    const boardFull = (board) => {
+        return (board.includes(''));
+    }
+
     //determines whether the current move led to game completion
     const evaluateMove = (index, marker) => {
         //obtain the current state of the board
         const board = gameBoard.getBoard();
 
-        //check for win
-        
+        //check for win in all directions from position of currently-placed marker
+        if (rowWin() || columnWin() || diagonalWin()) {
+            return 'win';
+        }
 
-
-        //check for tie
+        //if no win condition fulfilled and board is full, game is a tie
+        if (boardFull(board)) {
+            return 'tie';
+        }
     }
 
     //a round begins when a player leaves a marker at a particular position on the board
@@ -100,11 +109,12 @@ const gameController = ((p1Name, p2Name) => {
         //place marker and check current state of the board
         gameBoard.updateCell(index, currentPlayer.marker)
         
-        //check win conditions
+        //check game-completion conditions
         if (evaluateMove(index, currentPlayer.marker) === 'win') {
             console.log(`${currentPlayer.name} wins!`);
         }
-
-        
+        if (evaluateMove(index, currentPlayer.marker) === 'tie') {
+            console.log(`Tie game.`);
+        }
     }
 })();
