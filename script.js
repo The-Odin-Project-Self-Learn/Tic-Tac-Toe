@@ -77,10 +77,13 @@ const gameController = ((p1Name, p2Name) => {
     //fetch the current player
     const getCurrentPlayer = () => currentPlayer;
 
-    //check conditions of game
-    const evaluateMove = (board, index) => {
-        //check for win
+    //determines whether the current move led to game completion
+    const evaluateMove = (index, marker) => {
+        //obtain the current state of the board
+        const board = gameBoard.getBoard();
 
+        //check for win
+        
 
 
         //check for tie
@@ -92,15 +95,14 @@ const gameController = ((p1Name, p2Name) => {
         const currentPlayer = getCurrentPlayer();
 
         //indicate start of round
-        console.log(`${currentPlayer}'s turn`);
+        console.log(`${currentPlayer.name}'s turn`);
 
         //place marker and check current state of the board
         gameBoard.updateCell(index, currentPlayer.marker)
-        const board = gameBoard.getBoard();
         
         //check win conditions
-        if (evaluateMove(gameBoard.getBoard(), index) === 'win') {
-            console.log(`${getCurrentPlayer().name} wins!`);
+        if (evaluateMove(index, currentPlayer.marker) === 'win') {
+            console.log(`${currentPlayer.name} wins!`);
         }
 
         
