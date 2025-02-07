@@ -88,13 +88,23 @@ const gameController = ((p1Name, p2Name) => {
         const board = gameBoard.getBoard();
 
         //check for win in all directions from position of currently-placed marker
-        if (rowWin() || columnWin() || diagonalWin()) {
+        if (checkRowWin(index, marker) || checkColumnWin(index, marker) || checkDiagonalWin(index, marker)) {
             return 'win';
         }
 
         //if no win condition fulfilled and board is full, game is a tie
         if (boardFull(board)) {
             return 'tie';
+        }
+    }
+
+    const checkRowWin = (index, marker) => {
+        //evaluate the row that this marker was placed in
+        const row = Math.floor(index/3);
+
+        //check for three consecutively-similar markers by moving right within the row
+        while (Math.floor(index/3) < row + 1) {
+            
         }
     }
 
