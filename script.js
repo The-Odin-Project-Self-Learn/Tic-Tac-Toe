@@ -121,6 +121,50 @@ const gameController = ((p1Name, p2Name) => {
         return (matchingMarkers === 3);
     }
 
+    //checks to see if the marker that the player just put down results in a column-win condition
+    const checkColumnWin = (board, index, marker) => {
+        //evaluate the column that this marker was placed in
+        const column = index % 3;
+
+        //obtain the upper and lower index bounds of this column
+        const lowerBound = column;
+        const upperBound = column + 6;
+
+        //once lower and upper bounds obtained, check the markers at all indices between these bounds
+        let matchingMarkers = 0;
+        let pointer = lowerBound;
+        while (pointer <= upperBound) {
+            if (board[pointer] === marker) {
+                matchingMarkers++;
+            }
+            pointer+=3;
+        }
+
+        return (matchingMarkers === 3);
+    }
+
+    //checks to see if the marker that the player just put down results in a diagonal-win condition
+    const checkDiagonalWin = (board, index, marker) => {
+        //evaluate the column that this marker was placed in
+        const column = index % 3;
+
+        //obtain the upper and lower index bounds of this column
+        const lowerBound = column;
+        const upperBound = column + 6;
+
+        //once lower and upper bounds obtained, check the markers at all indices between these bounds
+        let matchingMarkers = 0;
+        let pointer = lowerBound;
+        while (pointer <= upperBound) {
+            if (board[pointer] === marker) {
+                matchingMarkers++;
+            }
+            pointer+=3;
+        }
+
+        return (matchingMarkers === 3);
+    }
+
     //a round begins when a player leaves a marker at a particular position on the board
     const playRound = (index) => {
         //fetch current player
