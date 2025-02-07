@@ -79,8 +79,8 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
     const getCurrentPlayer = () => currentPlayer;
 
     //returns true if board does not contain any empty string
-    const boardFull = () => {
-        return !(gameBoard.getBoard().includes(''));
+    const boardFull = (board) => {
+        return !(board.includes(''));
     }
 
     //checks to see if the marker that the player just put down results in a row-win condition
@@ -130,31 +130,26 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 
     //checks to see if the marker that the player just put down results in a diagonal-win condition
     const checkDiagonalWin = (board, index, marker) => {
-        //first determine whether the marker was placed at an index that belongs to a diagonal
-        const inDiagonal = (index % 2) == 0;
-
-        //if not in a diagonal, return early
-        if (inDiagonal == false) {
-            return false;
-        } else {
-            //if in a diagonal, then a sequence of matches in the right or left diagonals constitutes a win
-            return (
-                (board[0] === marker && board[4] === marker && board[8] === marker)
-                ||
-                (board[2] === marker && board[4] === marker && board[6] === marker)
-            );
-        }
+        //if in a diagonal, then a sequence of matches in the right or left diagonals constitutes a win
+        return (
+            (board[0] === marker && board[4] === marker && board[8] === marker)
+            ||
+            (board[2] === marker && board[4] === marker && board[6] === marker)
+        );
     }
+    
 
     //determines whether the current move led to game completion
     const evaluateMove = (index, marker) => {
+        //obtain current board state
+        const board = gameBoard.getBoard();
 
         //check for win in all directions from position of currently-placed marker
-        if (checkRowWin(gameBoard.getBoard(), index, marker) || checkColumnWin(gameBoard.getBoard(), index, marker) || checkDiagonalWin(gameBoard.getBoard(), index, marker)) {
+        if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
             return 'win';
 
         //if no win condition fulfilled and board is full, game is a tie
-        } else if (boardFull()) {
+        } else if (boardFull(board)) {
             return 'tie';
 
         } else {
@@ -211,4 +206,3 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 
 
 const game = gameController();
-
