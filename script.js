@@ -3,10 +3,7 @@ Factory function for gameBoard object, wrapped inside of an IIFE so that only on
 created at a time
 */
 const gameBoard = (() => {
-    const board = []; 
-    const cells = 9;
-
-    //populate the board with empty space
+    let board = new Array(9);
     /*
     [
         '', '', '',
@@ -15,9 +12,7 @@ const gameBoard = (() => {
     ] 
     */
     const resetBoard = () => {
-        for (let i = 0; i < cells; i++) {
-            board[i] = '';
-        }
+        board = new Array(9);
     }
     
     //make the board state accessible outside of the factory
@@ -49,7 +44,7 @@ const gameBoard = (() => {
         }
     }
 
-    return {getBoard, isValid, resetBoard, checkCell, updateCell};
+    return {getBoard, resetBoard, updateCell};
 })();
 
 
@@ -133,12 +128,14 @@ const gameController = ((p1Name, p2Name) => {
         const inDiagonal = (index % 2) == 0;
 
         //if it was placed in a diagonal, identify which diagonal it was placed in
+        let rightLeft = '';
+        let leftRight = '';
         if (inDiagonal) {
             //if the marker is in the right-left diagonal, its index will be at a step-size of 2 from the center index (4)
-            const rightLeft = Math.abs(index - 4) == 2;
+            rightLeft = Math.abs(index - 4) == 2;
 
             //if the marker is in the left-right diagonal, its index will be at a step size of 4 from the center index (4)
-            const leftRight = Math.abs(index - 4) == 4;
+            leftRight = Math.abs(index - 4) == 4;
         }
 
         //depending on which diagonal the marker is in, iterate through the diagonal and determine if all markers match
@@ -156,9 +153,7 @@ const gameController = ((p1Name, p2Name) => {
     }
 
     //determines whether the current move led to game completion
-    const evaluateMove = (index, marker) => {
-        //obtain the current state of the board
-        const board = gameBoard.getBoard();
+    const evaluateMove = (board, index, marker) => {
 
         //check for win in all directions from position of currently-placed marker
         if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
@@ -173,24 +168,36 @@ const gameController = ((p1Name, p2Name) => {
         }
     }
 
+    const printNewRound = () => {
+        const currentPlayer = getCurrentPlayer();
+        console.log(`${currentPlayer.name}'s turn`);
+    }
+
     //a round begins when a player leaves a marker at a particular position on the board
     const playRound = (index) => {
-        //fetch current player
-        const currentPlayer = getCurrentPlayer();
+        //obtain the current state of the board
+        const board = gameBoard.getBoard();
 
-        //indicate start of round
-        console.log(`${currentPlayer.name}'s turn`);
+        printNewRound();
 
         //place marker and check current state of the board
-        gameBoard.updateCell(index, currentPlayer.marker)
+        board.updateCell(index, currentPlayer.marker)
         
         //check game-completion conditions
-        const result = evaluateMove(index, currentPlayer.marker);
+        const result = evaluateMove(board, index, currentPlayer.marker);
         if (result == 'win') {
             return `${currentPlayer.name} wins!`;
-        }
-        if (result == 'tie') {
+        } else if (result == 'tie') {
             return 'Tie game.'
+        } else {
+            switchPlayerTurn();
+            printNewRound();
         }
     }
+
+
+    return {playRound};
 })();
+
+const game = gameController();
+
