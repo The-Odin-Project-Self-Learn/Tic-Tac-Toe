@@ -52,6 +52,8 @@ const gameBoard = (() => {
 
 
 
+
+
 /*
 Factory function for gameController object, wrapped inside of an IIFE
 */
@@ -219,3 +221,19 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
     return {playRound, resetGame};
 })();
 
+
+
+
+//screen controller factory function
+const screenController = (() => {
+    //add event listener to each cell that instantiates new round when it is clicked
+    //instantiating a new round consists of updating the current round message and cell
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach((cell, index) => {
+        cell.addEventListener('click', () => 
+            gameController.playRound(index));
+            cell.textContent = gameController.getCurrentPlayer().marker;
+    })
+    
+
+})();
