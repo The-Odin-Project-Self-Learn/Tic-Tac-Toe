@@ -82,22 +82,6 @@ const gameController = ((p1Name, p2Name) => {
         return !(board.includes(''));
     }
 
-    //determines whether the current move led to game completion
-    const evaluateMove = (index, marker) => {
-        //obtain the current state of the board
-        const board = gameBoard.getBoard();
-
-        //check for win in all directions from position of currently-placed marker
-        if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
-            return 'win';
-        }
-
-        //if no win condition fulfilled and board is full, game is a tie
-        if (boardFull(board)) {
-            return 'tie';
-        }
-    }
-
     //checks to see if the marker that the player just put down results in a row-win condition
     const checkRowWin = (board, index, marker) => {
         //evaluate the row that this marker was placed in
@@ -145,24 +129,48 @@ const gameController = ((p1Name, p2Name) => {
 
     //checks to see if the marker that the player just put down results in a diagonal-win condition
     const checkDiagonalWin = (board, index, marker) => {
-        //evaluate the column that this marker was placed in
-        const column = index % 3;
+        //first determine whether the marker was placed at an index that belongs to a diagonal
+        const inDiagonal = (index % 2) == 0;
 
-        //obtain the upper and lower index bounds of this column
-        const lowerBound = column;
-        const upperBound = column + 6;
+        //if it was placed in a diagonal, identify which diagonal it was placed in
+        if (inDiagonal) {
+            //if the marker is in the right-left diagonal, its index will be at a step-size of 2 from the center index (4)
+            const rightLeft = Math.abs(index - 4) == 2;
 
-        //once lower and upper bounds obtained, check the markers at all indices between these bounds
-        let matchingMarkers = 0;
-        let pointer = lowerBound;
-        while (pointer <= upperBound) {
-            if (board[pointer] === marker) {
-                matchingMarkers++;
-            }
-            pointer+=3;
+            //if the marker is in the left-right diagonal, its index will be at a step size of 4 from the center index (4)
+            const leftRight = Math.abs(index - 4) == 4;
         }
 
-        return (matchingMarkers === 3);
+        //depending on which diagonal the marker is in, iterate through the diagonal and determine if all markers match
+        if (inDiagonal && rightLeft) {
+            return (
+                board[0] === marker && board[4] === marker && board[8] === marker
+            );
+        }
+
+        if (inDiagonal && leftRight) {
+            return (
+                board[2] === marker && board[4] === marker && board[6] === marker
+            );
+        }
+    }
+
+    //determines whether the current move led to game completion
+    const evaluateMove = (index, marker) => {
+        //obtain the current state of the board
+        const board = gameBoard.getBoard();
+
+        //check for win in all directions from position of currently-placed marker
+        if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
+            return 'win';
+
+        //if no win condition fulfilled and board is full, game is a tie
+        } else if (boardFull(board)) {
+            return 'tie';
+
+        } else {
+            return null;
+        }
     }
 
     //a round begins when a player leaves a marker at a particular position on the board
