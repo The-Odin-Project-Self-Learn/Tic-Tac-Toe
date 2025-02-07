@@ -3,7 +3,7 @@ Factory function for gameBoard object, wrapped inside of an IIFE so that only on
 created at a time
 */
 const gameBoard = (() => {
-    let board = new Array(9);
+    let board = new Array(9).fill('');
     /*
     [
         '', '', '',
@@ -12,7 +12,7 @@ const gameBoard = (() => {
     ] 
     */
     const resetBoard = () => {
-        board = new Array(9);
+        board.fill('');
     }
     
     //make the board state accessible outside of the factory
@@ -41,6 +41,9 @@ const gameBoard = (() => {
     const updateCell = (index, marker) => {
         if (isValid(index) && isEmpty(index)) {
             board[index] = marker;
+            return 'successful';
+        } else {
+            return 'unsuccessful';
         }
     }
 
@@ -52,12 +55,15 @@ const gameBoard = (() => {
 /*
 Factory function for gameController object, wrapped inside of an IIFE
 */
-const gameController = ((p1Name, p2Name) => {
+const gameController = ((p1Name = "P1", p2Name = "P2") => {
     //create two players based on names passed in to controller
     const players = [
         {name: p1Name, marker: 'X'}, 
         {name: p2Name, marker: 'O'}
     ];
+
+    //game-state flag
+    let gameOver = false;
 
     //player turn-switching logic
     let currentPlayer = players[0];
@@ -72,9 +78,9 @@ const gameController = ((p1Name, p2Name) => {
     //fetch the current player
     const getCurrentPlayer = () => currentPlayer;
 
-    //check if board is full
-    const boardFull = (board) => {
-        return !(board.includes(''));
+    //returns true if board does not contain any empty string
+    const boardFull = () => {
+        return !(gameBoard.getBoard().includes(''));
     }
 
     //checks to see if the marker that the player just put down results in a row-win condition
@@ -127,40 +133,28 @@ const gameController = ((p1Name, p2Name) => {
         //first determine whether the marker was placed at an index that belongs to a diagonal
         const inDiagonal = (index % 2) == 0;
 
-        //if it was placed in a diagonal, identify which diagonal it was placed in
-        let rightLeft = '';
-        let leftRight = '';
-        if (inDiagonal) {
-            //if the marker is in the right-left diagonal, its index will be at a step-size of 2 from the center index (4)
-            rightLeft = Math.abs(index - 4) == 2;
-
-            //if the marker is in the left-right diagonal, its index will be at a step size of 4 from the center index (4)
-            leftRight = Math.abs(index - 4) == 4;
-        }
-
-        //depending on which diagonal the marker is in, iterate through the diagonal and determine if all markers match
-        if (inDiagonal && rightLeft) {
+        //if not in a diagonal, return early
+        if (inDiagonal == false) {
+            return false;
+        } else {
+            //if in a diagonal, then a sequence of matches in the right or left diagonals constitutes a win
             return (
-                board[0] === marker && board[4] === marker && board[8] === marker
-            );
-        }
-
-        if (inDiagonal && leftRight) {
-            return (
-                board[2] === marker && board[4] === marker && board[6] === marker
+                (board[0] === marker && board[4] === marker && board[8] === marker)
+                ||
+                (board[2] === marker && board[4] === marker && board[6] === marker)
             );
         }
     }
 
     //determines whether the current move led to game completion
-    const evaluateMove = (board, index, marker) => {
+    const evaluateMove = (index, marker) => {
 
         //check for win in all directions from position of currently-placed marker
-        if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
+        if (checkRowWin(gameBoard.getBoard(), index, marker) || checkColumnWin(gameBoard.getBoard(), index, marker) || checkDiagonalWin(gameBoard.getBoard(), index, marker)) {
             return 'win';
 
         //if no win condition fulfilled and board is full, game is a tie
-        } else if (boardFull(board)) {
+        } else if (boardFull()) {
             return 'tie';
 
         } else {
@@ -175,29 +169,46 @@ const gameController = ((p1Name, p2Name) => {
 
     //a round begins when a player leaves a marker at a particular position on the board
     const playRound = (index) => {
-        //obtain the current state of the board
-        const board = gameBoard.getBoard();
 
-        printNewRound();
+        if (!gameOver) {
+            //place marker and check current state of the board
+            const update = gameBoard.updateCell(index, currentPlayer.marker)
 
-        //place marker and check current state of the board
-        board.updateCell(index, currentPlayer.marker)
-        
-        //check game-completion conditions
-        const result = evaluateMove(board, index, currentPlayer.marker);
-        if (result == 'win') {
-            return `${currentPlayer.name} wins!`;
-        } else if (result == 'tie') {
-            return 'Tie game.'
+            if (update != 'successful') {
+                console.log('invalid move');
+            } else {
+                //check game-completion conditions based on board-state if cell update is successful
+                const result = evaluateMove(index, currentPlayer.marker);
+                if (result == 'win') {
+                    gameOver = true;
+                    console.log(`${currentPlayer.name} wins!`);
+                    return;
+                } else if (result == 'tie') {
+                    gameOver = true;
+                    console.log('Tie game.');
+                    return;
+                } else {
+                    switchPlayerTurn();
+                    printNewRound();
+                }
+            }
         } else {
-            switchPlayerTurn();
-            printNewRound();
+            resetGame();
+            return;
         }
     }
 
+    //starts a new game by resetting the board, the flag, and the current player
+    const resetGame = () => {
+        console.log('new game..');
+        gameBoard.resetBoard();
+        gameOver = false;
+        currentPlayer = players[0];
+    }
 
-    return {playRound};
+    return {playRound, resetGame};
 })();
+
 
 const game = gameController();
 
