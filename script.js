@@ -25,7 +25,7 @@ const gameBoard = (() => {
 
     //returns true if given cell exists on the board
     const isValid = (index) => {
-        return (index < 0 || index >= board.length);
+        return !(index < 0 || index >= board.length);
     }
 
     //checks the value in the cell positioned at the given index
@@ -39,12 +39,12 @@ const gameBoard = (() => {
 
     //returns true if given cell is empty
     const isEmpty = (index) => {
-        return (isValid(index) & board[index] === '');
+        return (isValid(index) && board[index] === '');
     }
 
     //update cell with a particular marker at the given index
     const updateCell = (index, marker) => {
-        if (isValid(index) & isEmpty(index)) {
+        if (isValid(index) && isEmpty(index)) {
             board[index] = marker;
         }
     }
@@ -79,7 +79,7 @@ const gameController = ((p1Name, p2Name) => {
 
     //check if board is full
     const boardFull = (board) => {
-        return (board.includes(''));
+        return !(board.includes(''));
     }
 
     //determines whether the current move led to game completion
@@ -88,7 +88,7 @@ const gameController = ((p1Name, p2Name) => {
         const board = gameBoard.getBoard();
 
         //check for win in all directions from position of currently-placed marker
-        if (checkRowWin(index, marker) || checkColumnWin(index, marker) || checkDiagonalWin(index, marker)) {
+        if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
             return 'win';
         }
 
@@ -98,14 +98,27 @@ const gameController = ((p1Name, p2Name) => {
         }
     }
 
-    const checkRowWin = (index, marker) => {
+    //checks to see if the marker that the player just put down results in a row-win condition
+    const checkRowWin = (board, index, marker) => {
         //evaluate the row that this marker was placed in
         const row = Math.floor(index/3);
 
-        //check for three consecutively-similar markers by moving right within the row
-        while (Math.floor(index/3) < row + 1) {
-            
+        //obtain the upper and lower index bounds of this row
+        const lowerBound = row * 3;
+        const upperBound = row * 3 + 2;
+
+        //once lower and upper bounds obtained, check the markers at all indices between these bounds
+        let matchingMarkers = 0;
+        let pointer = lowerBound;
+        while (pointer <= upperBound) {
+            if (board[pointer] === marker) {
+                matchingMarkers++;
+            }
+            pointer++;
         }
+
+        //return (board[lowerBound] === marker && board[lowerBound + 1] === marker && board[upperBound === marker]);
+        return (matchingMarkers === 3);
     }
 
     //a round begins when a player leaves a marker at a particular position on the board
@@ -120,11 +133,12 @@ const gameController = ((p1Name, p2Name) => {
         gameBoard.updateCell(index, currentPlayer.marker)
         
         //check game-completion conditions
-        if (evaluateMove(index, currentPlayer.marker) === 'win') {
-            console.log(`${currentPlayer.name} wins!`);
+        const result = evaluateMove(index, currentPlayer.marker);
+        if (result == 'win') {
+            return `${currentPlayer.name} wins!`;
         }
-        if (evaluateMove(index, currentPlayer.marker) === 'tie') {
-            console.log(`Tie game.`);
+        if (result == 'tie') {
+            return 'Tie game.'
         }
     }
 })();
