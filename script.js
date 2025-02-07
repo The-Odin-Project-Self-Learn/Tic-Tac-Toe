@@ -162,6 +162,18 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
         console.log(`${currentPlayer.name}'s turn`);
     }
 
+    const printBoard = () => {
+        const board = gameBoard.getBoard();
+        console.log(`
+          ${board[0]} | ${board[1]} | ${board[2]}
+          ---------
+          ${board[3]} | ${board[4]} | ${board[5]}
+          ---------
+          ${board[6]} | ${board[7]} | ${board[8]}
+        `);
+    };
+    
+
     //a round begins when a player leaves a marker at a particular position on the board
     const playRound = (index) => {
 
@@ -172,6 +184,8 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             if (update != 'successful') {
                 console.log('invalid move');
             } else {
+                printBoard();
+                
                 //check game-completion conditions based on board-state if cell update is successful
                 const result = evaluateMove(index, currentPlayer.marker);
                 if (result == 'win') {
