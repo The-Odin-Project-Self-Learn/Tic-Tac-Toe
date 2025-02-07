@@ -185,17 +185,17 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
                 console.log('invalid move');
             } else {
                 printBoard();
-                
+
                 //check game-completion conditions based on board-state if cell update is successful
                 const result = evaluateMove(index, currentPlayer.marker);
                 if (result == 'win') {
                     gameOver = true;
                     console.log(`${currentPlayer.name} wins!`);
-                    return;
+                    resetGame();
                 } else if (result == 'tie') {
                     gameOver = true;
                     console.log('Tie game.');
-                    return;
+                    resetGame();
                 } else {
                     switchPlayerTurn();
                     printNewRound();
@@ -203,20 +203,19 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             }
         } else {
             resetGame();
-            return;
         }
     }
 
-    //starts a new game by resetting the board, the flag, and the current player
+    //starts a new game by resetting the board, the flag, and the current player before printing a blank board
     const resetGame = () => {
         console.log('new game..');
         gameBoard.resetBoard();
         gameOver = false;
         currentPlayer = players[0];
+        console.log(`${currentPlayer.name} turn`);
+        printBoard();
     }
 
     return {playRound, resetGame};
 })();
 
-
-const game = gameController();
