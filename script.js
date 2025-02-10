@@ -227,13 +227,20 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 //screen controller factory function
 const screenController = (() => {
     //add event listener to each cell that instantiates new round when it is clicked
-    //instantiating a new round consists of updating the current round message and cell
+    //instantiating a new round consists of updating the current round message and board state
     const cells = document.querySelectorAll('.cell');
+    const currentRound = document.querySelector('p');
     cells.forEach((cell, index) => {
-        cell.addEventListener('click', () => 
-            gameController.playRound(index));
+        cell.addEventListener('click', () => {
+            gameController.playRound(index);
             cell.textContent = gameController.getCurrentPlayer().marker;
-    })
-    
+            currentRound.textContent = gameController.getCurrentPlayer().name;
+        });
+    });
 
+    //add an event listener to the reset button, which resets the game-state when clicked
+    const resetButton = document.querySelector('#reset-button');
+    resetButton.addEventListener('click', () => {
+        gameController.resetGame();
+    });
 })();
