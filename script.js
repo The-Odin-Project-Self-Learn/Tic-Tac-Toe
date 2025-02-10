@@ -229,18 +229,25 @@ const screenController = (() => {
     //add event listener to each cell that instantiates new round when it is clicked
     //instantiating a new round consists of updating the current round message and board state
     const cells = document.querySelectorAll('.cell');
-    const currentRound = document.querySelector('p');
+    const currentRoundMessage = document.querySelector('p');
     cells.forEach((cell, index) => {
         cell.addEventListener('click', () => {
             gameController.playRound(index);
             cell.textContent = gameController.getCurrentPlayer().marker;
-            currentRound.textContent = gameController.getCurrentPlayer().name;
+            currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
         });
     });
 
     //add an event listener to the reset button, which resets the game-state when clicked
     const resetButton = document.querySelector('#reset-button');
     resetButton.addEventListener('click', () => {
+        //reset the game state
         gameController.resetGame();
+        //reset the UI
+        cells.forEach((cell) => {
+            cell.textContent = '';
+        });
     });
 })();
+
+screenController();
