@@ -184,20 +184,17 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             const update = gameBoard.updateCell(index, currentPlayer.marker)
 
             if (update != 'successful') {
-                console.log('invalid move');
+                return 'unsuccessful move';
             } else {
                 printBoard();
-
                 //check game-completion conditions based on board-state if cell update is successful
                 const result = evaluateMove(index, currentPlayer.marker);
                 if (result == 'win') {
                     gameOver = true;
-                    console.log(`${currentPlayer.name} wins!`);
-                    resetGame();
+                    return 'win';
                 } else if (result == 'tie') {
                     gameOver = true;
-                    console.log('Tie game.');
-                    resetGame();
+                    return 'tie';
                 } else {
                     switchPlayerTurn();
                     printNewRound();
@@ -218,7 +215,7 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
         printBoard();
     }
 
-    return {playRound, resetGame};
+    return {getCurrentPlayer, playRound, resetGame};
 })();
 
 
@@ -232,9 +229,24 @@ const screenController = (() => {
     const currentRoundMessage = document.querySelector('p');
     cells.forEach((cell, index) => {
         cell.addEventListener('click', () => {
-            gameController.playRound(index);
-            cell.textContent = gameController.getCurrentPlayer().marker;
-            currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
+            const currentPlayer = gameController.getCurrentPlayer();
+            //play the round
+            const round = gameController.playRound(index);
+            //if the move is successful, update the board accordingly
+            if (round != 'unsuccessful move') {
+                if (round == 'win') {
+                    cell.textContent = currentPlayer.marker;
+                    currentRoundMessage.textContent = `${currentPlayer.name} wins!`;
+                    gameController.resetGame();
+                } else if (round == 'tie') {
+                    cell.textContent = currentPlayer.marker;
+                    currentRoundMessage.textContent = `Tie game`;
+                    gameController.resetGame();
+                } else {
+                    cell.textContent = currentPlayer.marker;
+                    currentRoundMessage.textContent = `${currentPlayer.name} turn`;
+                }
+            } 
         });
     });
 
@@ -250,4 +262,3 @@ const screenController = (() => {
     });
 })();
 
-screenController();
