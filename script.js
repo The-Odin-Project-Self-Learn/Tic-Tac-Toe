@@ -158,22 +158,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             return null;
         }
     }
-
-    const printNewRound = () => {
-        const currentPlayer = getCurrentPlayer();
-        console.log(`${currentPlayer.name}'s turn`);
-    }
-
-    const printBoard = () => {
-        const board = gameBoard.getBoard();
-        console.log(`
-          ${board[0]} | ${board[1]} | ${board[2]}
-          ---------
-          ${board[3]} | ${board[4]} | ${board[5]}
-          ---------
-          ${board[6]} | ${board[7]} | ${board[8]}
-        `);
-    };
     
 
     //a round begins when a player leaves a marker at a particular position on the board
@@ -186,7 +170,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             if (update != 'successful') {
                 return 'unsuccessful move';
             } else {
-                printBoard();
                 //check game-completion conditions based on board-state if cell update is successful
                 const result = evaluateMove(index, currentPlayer.marker);
                 if (result == 'win') {
@@ -197,7 +180,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
                     return 'tie';
                 } else {
                     switchPlayerTurn();
-                    printNewRound();
                 }
             }
         } else {
@@ -207,12 +189,9 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 
     //starts a new game by resetting the board, the flag, and the current player before printing a blank board
     const resetGame = () => {
-        console.log('new game..');
         gameBoard.resetBoard();
         gameOver = false;
         currentPlayer = players[0];
-        console.log(`${currentPlayer.name} turn`);
-        printBoard();
     }
 
     return {getCurrentPlayer, playRound, resetGame};
@@ -223,42 +202,50 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 
 //screen controller factory function
 const screenController = (() => {
-    //add event listener to each cell that instantiates new round when it is clicked
-    //instantiating a new round consists of updating the current round message and board state
     const cells = document.querySelectorAll('.cell');
     const currentRoundMessage = document.querySelector('p');
+    currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
+
+    //add event listener to each cell that instantiates new round when it is clicked
     cells.forEach((cell, index) => {
         cell.addEventListener('click', () => {
-            const currentPlayer = gameController.getCurrentPlayer();
-            //play the round
-            const round = gameController.playRound(index);
-            //if the move is successful, update the board accordingly
-            if (round != 'unsuccessful move') {
-                if (round == 'win') {
-                    cell.textContent = currentPlayer.marker;
-                    currentRoundMessage.textContent = `${currentPlayer.name} wins!`;
-                    gameController.resetGame();
-                } else if (round == 'tie') {
-                    cell.textContent = currentPlayer.marker;
-                    currentRoundMessage.textContent = `Tie game`;
-                    gameController.resetGame();
-                } else {
-                    cell.textContent = currentPlayer.marker;
-                    currentRoundMessage.textContent = `${currentPlayer.name} turn`;
-                }
-            } 
+            playRound(cell, index); 
         });
     });
 
     //add an event listener to the reset button, which resets the game-state when clicked
     const resetButton = document.querySelector('#reset-button');
     resetButton.addEventListener('click', () => {
-        //reset the game state
+        //reset the internal game state
         gameController.resetGame();
-        //reset the UI
+        //reset the visual board
         cells.forEach((cell) => {
             cell.textContent = '';
         });
+        //reset the player message
+        currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
     });
+
+    const playRound = (cell, index) => {
+        //store reference to player whose turn it is before round initiates
+        const currentPlayer = gameController.getCurrentPlayer();
+        //play the round internally - player switches if round completes successfully
+        const round = gameController.playRound(index);
+        //if the move is successful, update the board accordingly
+        if (round != 'unsuccessful move') {
+            //if game completes, we don't care for player switch, so we update screen without updating "currentPlayer" reference
+            if (round == 'win') {
+                cell.textContent = currentPlayer.marker;
+                currentRoundMessage.textContent = `${currentPlayer.name} wins!`;
+            } else if (round == 'tie') {
+                cell.textContent = currentPlayer.marker;
+                currentRoundMessage.textContent = `Tie game`;
+            } else {
+                cell.textContent = currentPlayer.marker;
+                //player has now switched, so update message accordingly
+                currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
+            }
+        }
+    };
 })();
 
