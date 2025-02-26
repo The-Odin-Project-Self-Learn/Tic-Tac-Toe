@@ -182,8 +182,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
                     switchPlayerTurn();
                 }
             }
-        } else {
-            resetGame();
         }
     }
 
@@ -194,7 +192,9 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
         currentPlayer = players[0];
     }
 
-    return {getCurrentPlayer, playRound, resetGame};
+    const isGameOver = () => gameOver;
+
+    return {getCurrentPlayer, playRound, resetGame, isGameOver};
 })();
 
 
@@ -227,22 +227,17 @@ const screenController = (() => {
     });
 
     const playRound = (cell, index) => {
-        //store reference to player whose turn it is before round initiates
+        if (gameController.isGameOver() == true) {return};
+
         const currentPlayer = gameController.getCurrentPlayer();
-        //play the round internally - player switches if round completes successfully
         const round = gameController.playRound(index);
-        //if the move is successful, update the board accordingly
+
         if (round != 'unsuccessful move') {
-            //if game completes, we don't care for player switch, so we update screen without updating "currentPlayer" reference
-            if (round == 'win') {
-                cell.textContent = currentPlayer.marker;
-                currentRoundMessage.textContent = `${currentPlayer.name} wins!`;
-            } else if (round == 'tie') {
-                cell.textContent = currentPlayer.marker;
-                currentRoundMessage.textContent = `Tie game`;
-            } else {
-                cell.textContent = currentPlayer.marker;
-                //player has now switched, so update message accordingly
+            cell.textContent = currentPlayer.marker;
+            if (round == 'win') {currentRoundMessage.textContent = `${currentPlayer.name} wins!`;} 
+            else if (round == 'tie') {currentRoundMessage.textContent = `Tie game`;} 
+            else {
+                //player has now switched, so update message with new current player reference
                 currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
             }
         }
