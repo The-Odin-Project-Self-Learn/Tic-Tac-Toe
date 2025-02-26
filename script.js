@@ -14,16 +14,13 @@ const gameBoard = (() => {
     const resetBoard = () => {
         board.fill('');
     }
-    
-    //make the board state accessible outside of the factory
+
     const getBoard = () => board;
 
-    //returns true if given cell exists on the board
     const isValid = (index) => {
         return !(index < 0 || index >= board.length);
     }
 
-    //checks the value in the cell positioned at the given index
     const checkCell = (index) => {
         if (isValid(index)) {
             return board[index];
@@ -32,12 +29,10 @@ const gameBoard = (() => {
         }
     }
 
-    //returns true if given cell is empty
     const isEmpty = (index) => {
         return (isValid(index) && board[index] === '');
     }
 
-    //update cell with a particular marker at the given index
     const updateCell = (index, marker) => {
         if (isValid(index) && isEmpty(index)) {
             board[index] = marker;
@@ -58,16 +53,13 @@ const gameBoard = (() => {
 Factory function for gameController object, wrapped inside of an IIFE
 */
 const gameController = ((p1Name = "P1", p2Name = "P2") => {
-    //create two players based on names passed in to controller
     const players = [
         {name: p1Name, marker: 'X'}, 
         {name: p2Name, marker: 'O'}
     ];
 
-    //game-state flag
     let gameOver = false;
 
-    //player turn-switching logic
     let currentPlayer = players[0];
     const switchPlayerTurn = () => {
         if (currentPlayer === players[0]) {
@@ -77,10 +69,8 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
         }
     }
 
-    //fetch the current player
     const getCurrentPlayer = () => currentPlayer;
 
-    //returns true if board does not contain any empty string
     const boardFull = (board) => {
         return !(board.includes(''));
     }
@@ -104,7 +94,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
             pointer++;
         }
 
-        //return (board[lowerBound] === marker && board[lowerBound + 1] === marker && board[upperBound === marker]);
         return (matchingMarkers === 3);
     }
 
@@ -143,17 +132,12 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
 
     //determines whether the current move led to game completion
     const evaluateMove = (index, marker) => {
-        //obtain current board state
         const board = gameBoard.getBoard();
 
-        //check for win in all directions from position of currently-placed marker
         if (checkRowWin(board, index, marker) || checkColumnWin(board, index, marker) || checkDiagonalWin(board, index, marker)) {
             return 'win';
-
-        //if no win condition fulfilled and board is full, game is a tie
         } else if (boardFull(board)) {
             return 'tie';
-
         } else {
             return null;
         }
@@ -164,13 +148,10 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
     const playRound = (index) => {
 
         if (!gameOver) {
-            //place marker and check current state of the board
             const update = gameBoard.updateCell(index, currentPlayer.marker)
-
             if (update != 'successful') {
                 return 'unsuccessful move';
             } else {
-                //check game-completion conditions based on board-state if cell update is successful
                 const result = evaluateMove(index, currentPlayer.marker);
                 if (result == 'win') {
                     gameOver = true;
@@ -185,7 +166,6 @@ const gameController = ((p1Name = "P1", p2Name = "P2") => {
         }
     }
 
-    //starts a new game by resetting the board, the flag, and the current player before printing a blank board
     const resetGame = () => {
         gameBoard.resetBoard();
         gameOver = false;
@@ -206,7 +186,6 @@ const screenController = (() => {
     const currentRoundMessage = document.querySelector('p');
     currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
 
-    //add event listener to each cell that instantiates new round when it is clicked
     cells.forEach((cell, index) => {
         cell.addEventListener('click', () => {
             playRound(cell, index); 
@@ -216,13 +195,10 @@ const screenController = (() => {
     //add an event listener to the reset button, which resets the game-state when clicked
     const resetButton = document.querySelector('#reset-button');
     resetButton.addEventListener('click', () => {
-        //reset the internal game state
         gameController.resetGame();
-        //reset the visual board
         cells.forEach((cell) => {
             cell.textContent = '';
         });
-        //reset the player message
         currentRoundMessage.textContent = `${gameController.getCurrentPlayer().name} turn`;
     });
 
